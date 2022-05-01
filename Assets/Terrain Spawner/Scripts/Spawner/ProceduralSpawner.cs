@@ -142,6 +142,11 @@ public class ProceduralSpawner : MonoBehaviour
     private Dictionary<string, GameObject> bushesDictionary = new Dictionary<string, GameObject>();
     private Dictionary<string, GameObject> grassDictionary = new Dictionary<string, GameObject>();
 
+    private List<GameObject> treesList = new List<GameObject>();
+    private List<GameObject> rocksList = new List<GameObject>();
+    private List<GameObject> bushesList = new List<GameObject>();
+    private List<GameObject> grassList = new List<GameObject>();
+
 
     [Header("Terrain Settings")]
     //    [SerializeField] Vector3 minSpawn;
@@ -150,6 +155,8 @@ public class ProceduralSpawner : MonoBehaviour
 
     [SerializeField] Vector3 terrainMin;
     [SerializeField] Vector3 terrainMax;
+
+    [SerializeField] float freeBorderSize;
 
 
     // Start is called before the first frame update
@@ -170,11 +177,18 @@ public class ProceduralSpawner : MonoBehaviour
     {
         Random.InitState( randomSeed );
 
-        //terrainGenerator = FindObjectOfType<PSTerrainGenerator>();
+        treesList = new List<GameObject>();
+        rocksList = new List<GameObject>();
+        bushesList = new List<GameObject>();
+        grassList = new List<GameObject>();
 
-        SetObjectsForTerrain();
+
+    //terrainGenerator = FindObjectOfType<PSTerrainGenerator>();
+
+    SetObjectsForTerrain();
         //StartCoroutine("SpawnAllObjectsInMap");
     }
+
     /*
     IEnumerator SpawnAllObjectsInMap()
     {
@@ -390,7 +404,7 @@ public class ProceduralSpawner : MonoBehaviour
         {
 
             int treesGroupsQty = (int)(treePresence * (xMax - xMin) * (zMax - zMin) / (2 * treeGroupRadius) / (2 * treeGroupRadius));
-            Debug.Log("To Place Trees Grpus Qty: " + treesGroupsQty);
+            Debug.Log("To Place Tree Groups Qty: " + treesGroupsQty);
             int treesPlaced = 0;
 
             GameObject go = new GameObject();
@@ -416,6 +430,7 @@ public class ProceduralSpawner : MonoBehaviour
                         ChangeLayersRecursively(instance, "Trees");
 
                         treesPlaced++;
+                        treesList.Add(instance);
                     }
 
                 }
@@ -547,6 +562,44 @@ public class ProceduralSpawner : MonoBehaviour
         return false;
     }
 
+    private bool CheckOverlap(Vector3 position, float freeRadius)
+    {
+
+        foreach (GameObject go in treesList)
+        {
+            if (Vector3.Distance(position, go.transform.position) <= freeRadius)
+            {
+                return true;
+            }
+        }
+
+        foreach (GameObject go in bushesList)
+        {
+            if (Vector3.Distance(position, go.transform.position) <= freeRadius)
+            {
+                return true;
+            }
+        }
+
+        foreach (GameObject go in rocksList)
+        {
+            if (Vector3.Distance(position, go.transform.position) <= freeRadius)
+            {
+                return true;
+            }
+        }
+
+        foreach (GameObject go in grassList)
+        {
+            if (Vector3.Distance(position, go.transform.position) <= freeRadius)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void CleanGrassInArea(Vector3 position, float distance)
     {
         foreach (Transform child in grassParent.transform)
@@ -596,7 +649,7 @@ public class ProceduralSpawner : MonoBehaviour
 
     private Vector3 GetRandomPosition()
     {
-        Vector3 position = new Vector3(Random.Range(terrainMin.x, terrainMax.x), 0, Random.Range(terrainMin.z, terrainMax.z));
+        Vector3 position = new Vector3(Random.Range(terrainMin.x + freeBorderSize, terrainMax.x - freeBorderSize), 0, Random.Range(terrainMin.z + freeBorderSize, terrainMax.z - freeBorderSize));
 
         return position;
     }
@@ -608,7 +661,7 @@ public class ProceduralSpawner : MonoBehaviour
         position = new Vector3(Random.Range(xMin - groupRadius, xMax + groupRadius), 0, Random.Range(zMin - groupRadius, zMax + groupRadius));
 
         //  Check values are in terrain boundaries
-        if ((position.x < terrainMin.x) || (position.x > terrainMax.x) || (position.z < terrainMin.z) || (position.z > terrainMax.z))
+        if ((position.x < terrainMin.x + freeBorderSize) || (position.x > terrainMax.x - freeBorderSize) || (position.z < terrainMin.z + freeBorderSize) || (position.z > terrainMax.z - freeBorderSize))
         {
             //Debug.Log(position);
             return false;
@@ -629,8 +682,8 @@ public class ProceduralSpawner : MonoBehaviour
         //  Check Min and Max Altitude
         if (height < minAltitude || height > maxAltitude)
         {
-            Debug.Log(height);
-            Debug.Log(position);
+            //Debug.Log(height);
+            //Debug.Log(position);
             return false;
         }
 /*
@@ -645,7 +698,8 @@ public class ProceduralSpawner : MonoBehaviour
             return false;
         }
 
-        if (OverlapTree(position))
+        //if (OverlapTree(position))
+        if (CheckOverlap(position, treeFreeRadius))
         {
             return false;
         }
