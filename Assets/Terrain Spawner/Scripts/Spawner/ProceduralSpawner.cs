@@ -5,7 +5,8 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public enum PSHit {
+public enum PSHit
+{
     NO_HIT,
     UNKNOWN_HIT,
     TERRAIN_HIT,
@@ -30,7 +31,7 @@ public class ProceduralSpawner : MonoBehaviour
     [Range(1, 10)]
     private int treeGroupSize = 1;
     [SerializeField]
-    [Range(1.0f, 5.0f)]
+    [Range(1.0f, 15.0f)]
     private float treeGroupRadius = 1.0f;
     [SerializeField]
     [Range(0.5f, 5.0f)]
@@ -57,7 +58,7 @@ public class ProceduralSpawner : MonoBehaviour
     [Range(1, 10)]
     private int grassGroupSize = 1;
     [SerializeField]
-    [Range(1.0f, 5.0f)]
+    [Range(1.0f, 15.0f)]
     private float grassGroupRadius = 1.0f;
     [SerializeField]
     [Range(0.5f, 5.0f)]
@@ -85,7 +86,7 @@ public class ProceduralSpawner : MonoBehaviour
     [Range(1, 10)]
     private int bushesGroupSize = 1;
     [SerializeField]
-    [Range(1.0f, 5.0f)]
+    [Range(1.0f, 15.0f)]
     private float bushesGroupRadius = 1.0f;
     [SerializeField]
     [Range(0.5f, 5.0f)]
@@ -113,7 +114,7 @@ public class ProceduralSpawner : MonoBehaviour
     [Range(1, 10)]
     private int rocksGroupSize = 1;
     [SerializeField]
-    [Range(1.0f, 5.0f)]
+    [Range(1.0f, 15.0f)]
     private float rocksGroupRadius = 1.0f;
     [SerializeField]
     [Range(0.5f, 5.0f)]
@@ -133,6 +134,9 @@ public class ProceduralSpawner : MonoBehaviour
     [SerializeField]
     private int randomSeed = 0;
 
+    [SerializeField]
+    [Range(1, 5)]
+    private int maxTriesToLocateObjects = 3;
 
 
     //public PSTerrainGenerator terrainGenerator;
@@ -170,12 +174,12 @@ public class ProceduralSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void Generate()
     {
-        Random.InitState( randomSeed );
+        Random.InitState(randomSeed);
 
         treesList = new List<GameObject>();
         rocksList = new List<GameObject>();
@@ -183,9 +187,9 @@ public class ProceduralSpawner : MonoBehaviour
         grassList = new List<GameObject>();
 
 
-    //terrainGenerator = FindObjectOfType<PSTerrainGenerator>();
+        //terrainGenerator = FindObjectOfType<PSTerrainGenerator>();
 
-    SetObjectsForTerrain();
+        SetObjectsForTerrain();
         //StartCoroutine("SpawnAllObjectsInMap");
     }
 
@@ -248,12 +252,12 @@ public class ProceduralSpawner : MonoBehaviour
         PlaceBushes(xMin, zMin, xMax, zMax);
     }
     */
-/*
-    private void SetObjectsForTerrain()
-    {
-        PlaceObjects(minSpawn.x, maxSpawn.x, minSpawn.z, maxSpawn.z);    
-    }
-*/
+    /*
+        private void SetObjectsForTerrain()
+        {
+            PlaceObjects(minSpawn.x, maxSpawn.x, minSpawn.z, maxSpawn.z);    
+        }
+    */
 
     /*
         public void PlaceObjects(float xMin, float xMax, float zMin, float zMax)
@@ -333,20 +337,21 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < bushesGroupsQty; n++)
             {
 
-                Vector3 centerGroup = GetRandomPosition();
+                //                Vector3 centerGroup = GetRandomPosition();
+                Vector3 centerGroup = GetGridRandomPosition(treePresence);
 
                 for (int t = 0; t < bushesGroupSize; t++)
                 {
 
                     Vector3 bushPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, true, out bushPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, out bushPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
                         GameObject bushPrefab = GetBushPrefab();
                         GameObject instance = Instantiate(bushPrefab, bushPosition, orientation);
                         instance.transform.parent = go.transform;
-                        
+
                         ChangeLayersRecursively(instance, "Vegetation");
 
                         bushesPlaced++;
@@ -365,7 +370,7 @@ public class ProceduralSpawner : MonoBehaviour
         if (rocksEnabled)
         {
 
-            int rocksGroupsQty = (int)(rocksPresence * (xMax - xMin) * (zMax - zMin) / (2 * rocksGroupRadius) / (2 * rocksGroupRadius) );
+            int rocksGroupsQty = (int)(rocksPresence * (xMax - xMin) * (zMax - zMin) / (2 * rocksGroupRadius) / (2 * rocksGroupRadius));
             int rocksPlaced = 0;
 
             GameObject go = new GameObject();
@@ -375,13 +380,14 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < rocksGroupsQty; n++)
             {
 
-                Vector3 centerGroup = GetRandomPosition();
+                //                Vector3 centerGroup = GetRandomPosition();
+                Vector3 centerGroup = GetGridRandomPosition(treePresence);
 
                 for (int t = 0; t < rocksGroupSize; t++)
                 {
 
                     Vector3 rockPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, true, out rockPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, out rockPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
@@ -408,31 +414,35 @@ public class ProceduralSpawner : MonoBehaviour
         {
 
             int treesGroupsQty = (int)(treePresence * (xMax - xMin) * (zMax - zMin) / (2 * treeGroupRadius) / (2 * treeGroupRadius));
-            Debug.Log("To Place Tree Groups Qty: " + treesGroupsQty);
             int treesPlaced = 0;
 
             GameObject go = new GameObject();
             go.transform.parent = treesParent.transform;
             go.name = "" + xMin + "/" + zMin;
 
+            //  For every group
             for (int n = 0; n < treesGroupsQty; n++)
             {
+                //  Get the group center position
+//                Vector3 centerGroup = GetRandomPosition();
+                Vector3 centerGroup = GetGridRandomPosition(treePresence);
+                Debug.Log("New Center Group at: " + centerGroup);
 
-                Vector3 centerGroup = GetRandomPosition();
-                //Debug.Log("New Center Group at: " + centerGroup);
-
+                //  Place the elements of the group
                 for (int t = 0; t < treeGroupSize; t++)
                 {
 
                     Vector3 treePosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, true, out treePosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, out treePosition))
                     {
-                        
+                        //  Randomize the orientation
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
+
                         GameObject treePrefab = GetTreePrefab();
+
                         GameObject instance = Instantiate(treePrefab, treePosition, orientation);
                         instance.transform.parent = go.transform;
-                        
+
                         ChangeLayersRecursively(instance, "Trees");
 
                         treesPlaced++;
@@ -462,14 +472,15 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < grassGroupsQty; n++)
             {
 
-                Vector3 centerGroup = GetRandomPosition();
+                //                Vector3 centerGroup = GetRandomPosition();
+                Vector3 centerGroup = GetGridRandomPosition(treePresence);
 
                 for (int t = 0; t < grassGroupSize; t++)
                 {
 
                     Vector3 grassPosition;
                     //if (GetGrassPosition(centerGroup, grassGroupRadius, grassMaxSlope, out grassPosition))
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, false, out grassPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, out grassPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
@@ -636,11 +647,11 @@ public class ProceduralSpawner : MonoBehaviour
         position.y = 10000f;
 
         Ray ray = new Ray(position, Vector3.down);
-        
+
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
-//            if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.NameToLayer("Terrain")))
+        //            if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.NameToLayer("Terrain")))
         {
             if (hit.collider.gameObject.GetComponent<PSTerrain>() != null)
             {
@@ -662,11 +673,57 @@ public class ProceduralSpawner : MonoBehaviour
         return position;
     }
 
-    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, bool clearGrass, out Vector3 position)
+    private Vector3 GetGridRandomPosition(float presence)
     {
 
-        //  Obtain a position
-        position = new Vector3(Random.Range(xMin - groupRadius, xMax + groupRadius), 0, Random.Range(zMin - groupRadius, zMax + groupRadius));
+        float xSize = (terrainMax.x - terrainMin.x) * presence;
+        float zSize = (terrainMax.z - terrainMin.z) * presence;
+
+        int xGridSize = (int)xSize;
+        int zGridSize = (int)zSize;
+        //Debug.Log("Grid Size x:" + xGridSize + " z:" + zGridSize);
+
+        float xGridCellSize = (terrainMax.x - terrainMin.x) / xGridSize;
+        float zGridCellSize = (terrainMax.z - terrainMin.z) / zGridSize;
+
+        //  Select a grid position
+        Vector3 position = new Vector3(Random.Range(0, xGridSize), 0, Random.Range(0, zGridSize));
+
+        //  Adjust the position to the center of the grid cell
+        position.x = ((int)position.x) + 0.5f;
+        position.z = ((int)position.z) + 0.5f;
+
+        //  Scale it based on the cell dimensions
+        position.x *= xGridCellSize;
+        position.z *= zGridCellSize;
+
+        return position;
+    }
+
+    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, out Vector3 position)
+    {
+
+        position = Vector3.zero;
+        float height = 0;
+
+        int tryCount = 0;
+        bool validPosition = false;
+
+        while (!validPosition && tryCount++ < maxTries)
+        {
+            //  Obtain a position
+            position = GetPositionInArea(centerGroup, groupRadius);
+
+            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, out height);
+            position.y = height;
+        }
+
+        return validPosition;
+    }
+
+    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, out float height)
+    {
+        height = 0;
 
         //  Check values are in terrain boundaries
         if ((position.x < terrainMin.x + freeBorderSize) || (position.x > terrainMax.x - freeBorderSize) || (position.z < terrainMin.z + freeBorderSize) || (position.z > terrainMax.z - freeBorderSize))
@@ -675,12 +732,11 @@ public class ProceduralSpawner : MonoBehaviour
             return false;
         }
 
-        float height;
         Vector3 normal;
 
         PSHit psHit = CheckAt(position, out height, out normal);
 
-//        if (!GetTerrainHeight(position, out height, out normal))
+        //        if (!GetTerrainHeight(position, out height, out normal))
         if (psHit != PSHit.TERRAIN_HIT)
         {
             return false;
@@ -694,12 +750,12 @@ public class ProceduralSpawner : MonoBehaviour
             //Debug.Log(position);
             return false;
         }
-/*
-        if (CheckPlaceholderAt(position))
-        {
-            return false;
-        }
-*/
+        /*
+                if (CheckPlaceholderAt(position))
+                {
+                    return false;
+                }
+        */
         //  Check max slope
         if (Vector3.Angle(Vector3.up, normal) > maxSlope)
         {
@@ -711,15 +767,31 @@ public class ProceduralSpawner : MonoBehaviour
         {
             return false;
         }
-/*
-        if (clearGrass)
-        {
-            //  If overlaps any grass remove the grass
-            CleanGrassInArea(position, freeRadius);
-        }
-*/
+        /*
+                if (clearGrass)
+                {
+                    //  If overlaps any grass remove the grass
+                    CleanGrassInArea(position, freeRadius);
+                }
+        */
         //  Return the position
         return true;
+
+    }
+
+    private Vector3 GetPositionInArea(Vector3 centerGroup, float groupRadius)
+    {
+        Vector3 position;
+
+        //position = new Vector3(Random.Range(xMin - groupRadius, xMax + groupRadius), 0, Random.Range(zMin - groupRadius, zMax + groupRadius));
+        position = new Vector3(Random.Range(centerGroup.x - groupRadius, centerGroup.x + groupRadius), 0, Random.Range(centerGroup.z - groupRadius, centerGroup.z + groupRadius));
+
+
+        float angle = Random.Range(0, 2 * Mathf.PI);
+        float distance = Random.Range(0, groupRadius);
+        position = centerGroup + groupRadius * new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+
+        return position;
     }
 
     //private bool GetItemPosition(Vector3 centerGroup, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, bool clearGrass, out Vector3 position)
@@ -824,10 +896,10 @@ public class ProceduralSpawner : MonoBehaviour
                 return PSHit.PLACEHOLDER_HIT;
             }
             else
-//            if (hit.collider.gameObject.GetComponent<PSTerrain>() != null)
-            if (LayerMask.LayerToName( hit.collider.gameObject.layer ).Equals("Terrain"))
+            //            if (hit.collider.gameObject.GetComponent<PSTerrain>() != null)
+            if (LayerMask.LayerToName(hit.collider.gameObject.layer).Equals("Terrain"))
             {
-                    height = hit.point.y;
+                height = hit.point.y;
                 normal = hit.normal;
 
                 return PSHit.TERRAIN_HIT;
@@ -851,7 +923,7 @@ public class ProceduralSpawner : MonoBehaviour
     }
 
 
-    public GameObject[] GetPois ()
+    public GameObject[] GetPois()
     {
         PSTown[] towns = FindObjectsOfType<PSTown>();
 
@@ -898,7 +970,8 @@ public class ProceduralSpawner : MonoBehaviour
             }
 
         }
-        else {
+        else
+        {
 
             while (grassParent.transform.childCount != 0)
             {
@@ -923,7 +996,7 @@ public class ProceduralSpawner : MonoBehaviour
     }
 
 
-    private void CollectObjects ()
+    private void CollectObjects()
     {
         foreach (Transform child in treesParent.transform)
         {
