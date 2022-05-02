@@ -341,8 +341,10 @@ public class ProceduralSpawner : MonoBehaviour
                     Vector3 bushPosition;
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, true, out bushPosition))
                     {
+                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
+
                         GameObject bushPrefab = GetBushPrefab();
-                        GameObject instance = Instantiate(bushPrefab, bushPosition, Quaternion.identity);
+                        GameObject instance = Instantiate(bushPrefab, bushPosition, orientation);
                         instance.transform.parent = go.transform;
                         
                         ChangeLayersRecursively(instance, "Vegetation");
@@ -381,8 +383,10 @@ public class ProceduralSpawner : MonoBehaviour
                     Vector3 rockPosition;
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, true, out rockPosition))
                     {
+                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
+
                         GameObject rockPrefab = GetRockPrefab();
-                        GameObject instance = Instantiate(rockPrefab, rockPosition, Quaternion.identity);
+                        GameObject instance = Instantiate(rockPrefab, rockPosition, orientation);
                         instance.transform.parent = go.transform;
 
                         ChangeLayersRecursively(instance, "Rocks");
@@ -423,8 +427,10 @@ public class ProceduralSpawner : MonoBehaviour
                     Vector3 treePosition;
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, true, out treePosition))
                     {
+                        
+                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
                         GameObject treePrefab = GetTreePrefab();
-                        GameObject instance = Instantiate(treePrefab, treePosition, Quaternion.identity);
+                        GameObject instance = Instantiate(treePrefab, treePosition, orientation);
                         instance.transform.parent = go.transform;
                         
                         ChangeLayersRecursively(instance, "Trees");
@@ -465,8 +471,10 @@ public class ProceduralSpawner : MonoBehaviour
                     //if (GetGrassPosition(centerGroup, grassGroupRadius, grassMaxSlope, out grassPosition))
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, false, out grassPosition))
                     {
+                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
+
                         GameObject grassPrefab = GetGrassPrefab();
-                        GameObject instance = Instantiate(grassPrefab, grassPosition, Quaternion.identity);
+                        GameObject instance = Instantiate(grassPrefab, grassPosition, orientation);
 
                         instance.transform.parent = go.transform;
 
