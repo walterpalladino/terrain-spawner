@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
+
+
 
 
 public enum PSHit
@@ -162,6 +166,13 @@ public class ProceduralSpawner : MonoBehaviour
 
     [SerializeField] float freeBorderSize;
 
+    [SerializeField] Vector3 terrainCenter;
+
+
+    [SerializeField] LayerMask terrainIgnoreLayers;
+
+    [SerializeField] float maxDistanceFromCenter = 0.0f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -179,6 +190,9 @@ public class ProceduralSpawner : MonoBehaviour
 
     public void Generate()
     {
+
+        CheckRequiredLayers();
+
         Random.InitState(randomSeed);
 
         treesList = new List<GameObject>();
@@ -192,6 +206,31 @@ public class ProceduralSpawner : MonoBehaviour
         SetObjectsForTerrain();
         //StartCoroutine("SpawnAllObjectsInMap");
     }
+
+
+    /*
+
+Layers Required:
+
+16 - Terrain
+17 - Trees
+18 - Vegetation
+19 - Rocks
+20 - Buildings
+21 - Grass
+
+ 
+*/
+    private void CheckRequiredLayers()
+    {
+        LayerUtils.CreateLayer("Terrain", 16);
+        LayerUtils.CreateLayer("Trees", 17);
+        LayerUtils.CreateLayer("Vegetation", 18);
+        LayerUtils.CreateLayer("Rocks", 19);
+        LayerUtils.CreateLayer("Buildings", 20);
+        LayerUtils.CreateLayer("Grass", 21);
+    }
+
 
     /*
     IEnumerator SpawnAllObjectsInMap()
@@ -274,16 +313,35 @@ public class ProceduralSpawner : MonoBehaviour
 
     private void SetObjectsForTerrain()
     {
-        PlaceObjects(0, 0, terrainTileSize);
+
+        float mapSizeX = terrainMax.x - terrainMin.x;
+        float mapSizeY = terrainMax.y - terrainMin.y;
+        float mapSizeZ = terrainMax.z - terrainMin.z;
+
+        terrainCenter = new Vector3(mapSizeX / 2.0f, mapSizeY / 2.0f, mapSizeZ / 2.0f);
+        terrainCenter += terrainMin; 
+
+        int chunksX = (int)(mapSizeX) / (int)(terrainTileSize) ;
+        int chunksZ = (int)(mapSizeZ) / (int)(terrainTileSize) ;
+
+        for (int z = 0; z < chunksZ; z++)
+        {
+            for (int x = 0; x < chunksX; x++)
+            {
+                PlaceObjects(x, z, terrainTileSize);
+            }
+        }
+
+//        PlaceObjects(0, 0, terrainTileSize);
     }
 
     public void PlaceObjects(int x, int z, float terrainTileSize)
     {
 
-        float xMin = x * terrainTileSize;
-        float zMin = z * terrainTileSize;
-        float xMax = (x + 1) * terrainTileSize;
-        float zMax = (z + 1) * terrainTileSize;
+        float xMin = x * terrainTileSize + terrainMin.x;
+        float zMin = z * terrainTileSize + terrainMin.z;
+        float xMax = (x + 1) * terrainTileSize + terrainMin.x;
+        float zMax = (z + 1) * terrainTileSize + terrainMin.z;
 
         Debug.Log("Placing objects on area : " + xMin + "/" + zMin + " to " + xMax + "/" + zMax);
 
@@ -338,7 +396,7 @@ public class ProceduralSpawner : MonoBehaviour
             {
 
                 //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
 
                 for (int t = 0; t < bushesGroupSize; t++)
                 {
@@ -360,7 +418,7 @@ public class ProceduralSpawner : MonoBehaviour
                 }
 
             }
-            Debug.Log("Placed " + bushesPlaced + " bushes of " + bushesGroupsQty + " groups of " + bushesGroupSize + " bush.");
+            //Debug.Log("Placed " + bushesPlaced + " bushes of " + bushesGroupsQty + " groups of " + bushesGroupSize + " bush.");
         }
 
     }
@@ -381,7 +439,7 @@ public class ProceduralSpawner : MonoBehaviour
             {
 
                 //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
 
                 for (int t = 0; t < rocksGroupSize; t++)
                 {
@@ -403,7 +461,7 @@ public class ProceduralSpawner : MonoBehaviour
                 }
 
             }
-            Debug.Log("Placed " + rocksPlaced + " rocks of " + rocksGroupsQty + " groups of " + rocksGroupSize + " rocks.");
+            //Debug.Log("Placed " + rocksPlaced + " rocks of " + rocksGroupsQty + " groups of " + rocksGroupSize + " rocks.");
         }
 
     }
@@ -424,9 +482,10 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < treesGroupsQty; n++)
             {
                 //  Get the group center position
-//                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(treePresence);
-                Debug.Log("New Center Group at: " + centerGroup);
+                //                Vector3 centerGroup = GetRandomPosition();
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
+
+                //Debug.Log("New Center Group at: " + centerGroup);
 
                 //  Place the elements of the group
                 for (int t = 0; t < treeGroupSize; t++)
@@ -452,7 +511,7 @@ public class ProceduralSpawner : MonoBehaviour
                 }
 
             }
-            Debug.Log("Placed " + treesPlaced + " trees of " + treesGroupsQty + " groups of " + treeGroupSize + " tress.");
+            //Debug.Log("Placed " + treesPlaced + " trees of " + treesGroupsQty + " groups of " + treeGroupSize + " tress.");
         }
 
     }
@@ -473,7 +532,7 @@ public class ProceduralSpawner : MonoBehaviour
             {
 
                 //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
 
                 for (int t = 0; t < grassGroupSize; t++)
                 {
@@ -497,7 +556,7 @@ public class ProceduralSpawner : MonoBehaviour
                 }
 
             }
-            Debug.Log("Placed " + grassPlaced + " grass of " + grassGroupsQty + " groups of " + grassGroupSize + " grass.");
+            //Debug.Log("Placed " + grassPlaced + " grass of " + grassGroupsQty + " groups of " + grassGroupSize + " grass.");
         }
 
     }
@@ -637,7 +696,7 @@ public class ProceduralSpawner : MonoBehaviour
         }
     }
 
-
+    /*
     private bool GetTerrainHeight(Vector3 position, out float height, out Vector3 normal)
     {
 
@@ -650,7 +709,7 @@ public class ProceduralSpawner : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~terrainIgnoreLayers))
         //            if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.NameToLayer("Terrain")))
         {
             if (hit.collider.gameObject.GetComponent<PSTerrain>() != null)
@@ -665,14 +724,45 @@ public class ProceduralSpawner : MonoBehaviour
 
         return false;
     }
-
+    */
+    /*
     private Vector3 GetRandomPosition()
     {
         Vector3 position = new Vector3(Random.Range(terrainMin.x + freeBorderSize, terrainMax.x - freeBorderSize), 0, Random.Range(terrainMin.z + freeBorderSize, terrainMax.z - freeBorderSize));
 
         return position;
     }
+    */
+    private Vector3 GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ, float presence)
+    {
 
+        float xSize = (maxX - minX) * presence;
+        float zSize = (maxZ - minZ) * presence;
+
+        int xGridSize = (int)xSize;
+        int zGridSize = (int)zSize;
+        //Debug.Log("Grid Size x:" + xGridSize + " z:" + zGridSize);
+
+        float xGridCellSize = (maxX - minX) / xGridSize;
+        float zGridCellSize = (maxZ - minZ) / zGridSize;
+
+        //  Select a grid position
+        Vector3 position = new Vector3(Random.Range(0, xGridSize), 0, Random.Range(0, zGridSize));
+
+        //  Adjust the position to the center of the grid cell
+        position.x = ((int)position.x) + 0.5f;
+        position.z = ((int)position.z) + 0.5f;
+
+        //  Scale it based on the cell dimensions
+        position.x *= xGridCellSize;
+        position.z *= zGridCellSize;
+
+        position.x += minX;
+        position.z += minZ;
+
+        return position;
+    }
+/*
     private Vector3 GetGridRandomPosition(float presence)
     {
 
@@ -699,6 +789,7 @@ public class ProceduralSpawner : MonoBehaviour
 
         return position;
     }
+*/
 
     private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, out Vector3 position)
     {
@@ -731,6 +822,14 @@ public class ProceduralSpawner : MonoBehaviour
             //Debug.Log(position);
             return false;
         }
+
+        //  Check if there is a maximum distance set and the distance to the center if bigger than that
+        float distance = (position - terrainCenter).magnitude;
+        if (maxDistanceFromCenter > 0.0f && maxDistanceFromCenter < distance)
+        {
+            return false;
+        }
+
 
         Vector3 normal;
 
@@ -885,7 +984,9 @@ public class ProceduralSpawner : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+//        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~terrainIgnoreLayers))
+
         {
             //Debug.Log("Hit object : " + hit.collider.gameObject.name + " with layer : " + LayerMask.LayerToName(hit.collider.gameObject.layer));
             if (hit.collider.gameObject.GetComponent<PSPlaceholder>() != null)
