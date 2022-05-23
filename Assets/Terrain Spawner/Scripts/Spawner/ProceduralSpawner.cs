@@ -14,6 +14,7 @@ public enum PSHit
     NO_HIT,
     UNKNOWN_HIT,
     TERRAIN_HIT,
+    SPECIAL_AREA_HIT,
     PLACEHOLDER_HIT
 }
 
@@ -47,6 +48,14 @@ public class ProceduralSpawner : MonoBehaviour
     private float treeMinAltitude = 0.0f;
     [SerializeField]
     private float treeMaxAltitude = 20.0f;
+
+    [SerializeField]
+    private LayerMask treeSpecialAreaMask ;
+    [SerializeField]
+    private float treeSpecialAreaRadius = 10.0f;
+    [SerializeField]
+    private GameObject[] treesSpecialArea;
+
 
     [Header("Grass Settings")]
     [SerializeField]
@@ -208,7 +217,8 @@ public class ProceduralSpawner : MonoBehaviour
     }
 
 
-    /*
+
+/*
 
 Layers Required:
 
@@ -218,7 +228,7 @@ Layers Required:
 19 - Rocks
 20 - Buildings
 21 - Grass
-
+//22 - Special Area
  
 */
     private void CheckRequiredLayers()
@@ -229,6 +239,7 @@ Layers Required:
         LayerUtils.CreateLayer("Rocks", 19);
         LayerUtils.CreateLayer("Buildings", 20);
         LayerUtils.CreateLayer("Grass", 21);
+        //LayerUtils.CreateLayer("Special Area", 22);
     }
 
 
@@ -383,6 +394,8 @@ Layers Required:
     {
         if (bushesEnabled)
         {
+            bool acceptSpecialArea = true;
+            bool isSpecialArea = false;
 
             int bushesGroupsQty = (int)(bushesPresence * (xMax - xMin) * (zMax - zMin) / (2 * bushesGroupRadius) / (2 * bushesGroupRadius));
             int bushesPlaced = 0;
@@ -402,7 +415,7 @@ Layers Required:
                 {
 
                     Vector3 bushPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, out bushPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out bushPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
@@ -428,6 +441,9 @@ Layers Required:
         if (rocksEnabled)
         {
 
+            bool acceptSpecialArea = true;
+            bool isSpecialArea = false;
+
             int rocksGroupsQty = (int)(rocksPresence * (xMax - xMin) * (zMax - zMin) / (2 * rocksGroupRadius) / (2 * rocksGroupRadius));
             int rocksPlaced = 0;
 
@@ -445,7 +461,7 @@ Layers Required:
                 {
 
                     Vector3 rockPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, out rockPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out rockPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
@@ -470,6 +486,8 @@ Layers Required:
     {
         if (treesEnabled)
         {
+            bool acceptSpecialArea = true;
+            bool isSpecialArea = false;
 
             int treesGroupsQty = (int)(treePresence * (xMax - xMin) * (zMax - zMin) / (2 * treeGroupRadius) / (2 * treeGroupRadius));
             int treesPlaced = 0;
@@ -492,12 +510,12 @@ Layers Required:
                 {
 
                     Vector3 treePosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, out treePosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out treePosition))
                     {
                         //  Randomize the orientation
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        GameObject treePrefab = GetTreePrefab();
+                        GameObject treePrefab = GetTreePrefab(isSpecialArea);
 
                         GameObject instance = Instantiate(treePrefab, treePosition, orientation);
                         instance.transform.parent = go.transform;
@@ -521,6 +539,9 @@ Layers Required:
         if (grassEnabled)
         {
 
+            bool acceptSpecialArea = true;
+            bool isSpecialArea = false;
+
             int grassGroupsQty = (int)(grassPresence * (xMax - xMin) * (zMax - zMin) / (2 * grassGroupRadius) / (2 * grassGroupRadius));
             int grassPlaced = 0;
 
@@ -539,7 +560,7 @@ Layers Required:
 
                     Vector3 grassPosition;
                     //if (GetGrassPosition(centerGroup, grassGroupRadius, grassMaxSlope, out grassPosition))
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, out grassPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out grassPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
@@ -608,10 +629,18 @@ Layers Required:
         return true;
     }
     */
-    private GameObject GetTreePrefab()
+    private GameObject GetTreePrefab(bool isSpecialArea)
     {
-        int idx = Random.Range(0, trees.Length);
-        return trees[idx];
+        if (!isSpecialArea)
+        {
+            int idx = Random.Range(0, trees.Length);
+            return trees[idx];
+        }
+        else
+        {
+            int idx = Random.Range(0, treesSpecialArea.Length);
+            return treesSpecialArea[idx];
+        }
     }
 
     private GameObject GetBushPrefab()
@@ -677,7 +706,7 @@ Layers Required:
 
         return false;
     }
-
+    /*
     private void CleanGrassInArea(Vector3 position, float distance)
     {
         foreach (Transform child in grassParent.transform)
@@ -695,7 +724,7 @@ Layers Required:
             }
         }
     }
-
+    */
     /*
     private bool GetTerrainHeight(Vector3 position, out float height, out Vector3 normal)
     {
@@ -791,9 +820,9 @@ Layers Required:
     }
 */
 
-    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, out Vector3 position)
+    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out Vector3 position)
     {
-
+        isSpecialArea = false;
         position = Vector3.zero;
         float height = 0;
 
@@ -805,15 +834,16 @@ Layers Required:
             //  Obtain a position
             position = GetPositionInArea(centerGroup, groupRadius);
 
-            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, out height);
+            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, acceptSpecialArea, specialAreaOverlapRadius, out isSpecialArea, out height);
             position.y = height;
         }
 
         return validPosition;
     }
 
-    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, out float height)
+    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out float height)
     {
+        isSpecialArea = false;
         height = 0;
 
         //  Check values are in terrain boundaries
@@ -830,7 +860,6 @@ Layers Required:
             return false;
         }
 
-
         Vector3 normal;
 
         PSHit psHit = CheckAt(position, out height, out normal);
@@ -841,6 +870,15 @@ Layers Required:
             return false;
         }
         position.y = height;
+
+
+        //  Check if close to an special area
+        if (acceptSpecialArea && CheckCloseToSpecialArea(position, specialAreaOverlapRadius))
+        {
+            isSpecialArea = true;
+        }
+
+
 
         //  Check Min and Max Altitude
         if (height < minAltitude || height > maxAltitude)
@@ -989,6 +1027,7 @@ Layers Required:
 
         {
             //Debug.Log("Hit object : " + hit.collider.gameObject.name + " with layer : " + LayerMask.LayerToName(hit.collider.gameObject.layer));
+
             if (hit.collider.gameObject.GetComponent<PSPlaceholder>() != null)
             {
                 height = hit.point.y;
@@ -1014,15 +1053,39 @@ Layers Required:
 
                 return PSHit.TERRAIN_HIT;
             }
+            /*
             else
             {
                 return PSHit.UNKNOWN_HIT;
             }
+            */
         }
 
         return PSHit.NO_HIT;
     }
 
+    private bool CheckCloseToSpecialArea(Vector3 position, float radius)
+    {
+
+        Ray ray = new Ray(position, Vector3.down);
+
+        Collider [] hits = Physics.OverlapSphere(position, radius);
+
+        if (hits.Length > 0)
+        {
+            //Debug.Log("Hit object : " + hit.collider.gameObject.name + " with layer : " + LayerMask.LayerToName(hit.collider.gameObject.layer));
+
+            foreach (Collider collider in hits)
+            {
+                if (collider.gameObject.GetComponent<PSSpecialArea>() != null)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public GameObject[] GetPois()
     {
