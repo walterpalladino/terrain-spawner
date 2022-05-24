@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PSSpecialArea : MonoBehaviour
 {
+
+    public PSSpawnInformation spawnInformation;
+
     // Start is called before the first frame update
     void Start()
     {

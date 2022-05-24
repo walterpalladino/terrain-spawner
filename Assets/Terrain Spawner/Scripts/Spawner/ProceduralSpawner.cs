@@ -49,12 +49,12 @@ public class ProceduralSpawner : MonoBehaviour
     [SerializeField]
     private float treeMaxAltitude = 20.0f;
 
-    [SerializeField]
-    private LayerMask treeSpecialAreaMask ;
+//    [SerializeField]
+//    private LayerMask treeSpecialAreaMask ;
     [SerializeField]
     private float treeSpecialAreaRadius = 10.0f;
-    [SerializeField]
-    private GameObject[] treesSpecialArea;
+//    [SerializeField]
+//    private GameObject[] treesSpecialArea;
 
 
     [Header("Grass Settings")]
@@ -411,21 +411,27 @@ Layers Required:
                 //                Vector3 centerGroup = GetRandomPosition();
                 Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
 
+                PSSpawnInformation spawnInformation;
+
                 for (int t = 0; t < bushesGroupSize; t++)
                 {
-
                     Vector3 bushPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out bushPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out bushPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        GameObject bushPrefab = GetBushPrefab();
-                        GameObject instance = Instantiate(bushPrefab, bushPosition, orientation);
-                        instance.transform.parent = go.transform;
+                        //GameObject bushPrefab = GetBushPrefab();
+                        GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.bushesPrefabs : bushes);
 
-                        ChangeLayersRecursively(instance, "Vegetation");
+                        if (prefab != null)
+                        {
+                            GameObject instance = Instantiate(prefab, bushPosition, orientation);
+                            instance.transform.parent = go.transform;
 
-                        bushesPlaced++;
+                            ChangeLayersRecursively(instance, "Vegetation");
+
+                            bushesPlaced++;
+                        }
                     }
 
                 }
@@ -457,21 +463,29 @@ Layers Required:
                 //                Vector3 centerGroup = GetRandomPosition();
                 Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
 
+                PSSpawnInformation spawnInformation;
+
                 for (int t = 0; t < rocksGroupSize; t++)
                 {
 
                     Vector3 rockPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out rockPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out rockPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        GameObject rockPrefab = GetRockPrefab();
-                        GameObject instance = Instantiate(rockPrefab, rockPosition, orientation);
-                        instance.transform.parent = go.transform;
+                        //GameObject rockPrefab = GetRockPrefab();
+                        //GameObject prefab = GetRandomPrefab(rocks);
+                        GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.rocksPrefabs : rocks);
 
-                        ChangeLayersRecursively(instance, "Rocks");
+                        if (prefab != null)
+                        {
+                            GameObject instance = Instantiate(prefab, rockPosition, orientation);
+                            instance.transform.parent = go.transform;
 
-                        rocksPlaced++;
+                            ChangeLayersRecursively(instance, "Rocks");
+
+                            rocksPlaced++;
+                        }
                     }
 
                 }
@@ -503,6 +517,8 @@ Layers Required:
                 //                Vector3 centerGroup = GetRandomPosition();
                 Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
 
+                PSSpawnInformation spawnInformation;
+
                 //Debug.Log("New Center Group at: " + centerGroup);
 
                 //  Place the elements of the group
@@ -510,20 +526,24 @@ Layers Required:
                 {
 
                     Vector3 treePosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out treePosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out spawnInformation, out treePosition))
                     {
                         //  Randomize the orientation
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        GameObject treePrefab = GetTreePrefab(isSpecialArea);
+                        //GameObject treePrefab = GetTreePrefab(isSpecialArea, spawnInformation);
+                        GameObject prefab = GetRandomPrefab((isSpecialArea)?spawnInformation.treesPrefabs:trees);
 
-                        GameObject instance = Instantiate(treePrefab, treePosition, orientation);
-                        instance.transform.parent = go.transform;
+                        if (prefab != null)
+                        {
+                            GameObject instance = Instantiate(prefab, treePosition, orientation);
+                            instance.transform.parent = go.transform;
 
-                        ChangeLayersRecursively(instance, "Trees");
+                            ChangeLayersRecursively(instance, "Trees");
 
-                        treesPlaced++;
-                        treesList.Add(instance);
+                            treesPlaced++;
+                            treesList.Add(instance);
+                        }
                     }
 
                 }
@@ -554,24 +574,30 @@ Layers Required:
 
                 //                Vector3 centerGroup = GetRandomPosition();
                 Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
+                PSSpawnInformation spawnInformation;
 
                 for (int t = 0; t < grassGroupSize; t++)
                 {
 
                     Vector3 grassPosition;
                     //if (GetGrassPosition(centerGroup, grassGroupRadius, grassMaxSlope, out grassPosition))
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out grassPosition))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out grassPosition))
                     {
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        GameObject grassPrefab = GetGrassPrefab();
-                        GameObject instance = Instantiate(grassPrefab, grassPosition, orientation);
+                        //GameObject grassPrefab = GetGrassPrefab();
+                        GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.grassPrefabs : grasses);
 
-                        instance.transform.parent = go.transform;
+                        if (prefab != null)
+                        {
+                            GameObject instance = Instantiate(prefab, grassPosition, orientation);
 
-                        ChangeLayersRecursively(instance, "Grass");
+                            instance.transform.parent = go.transform;
 
-                        grassPlaced++;
+                            ChangeLayersRecursively(instance, "Grass");
+
+                            grassPlaced++;
+                        }
                     }
 
                 }
@@ -629,18 +655,40 @@ Layers Required:
         return true;
     }
     */
-    private GameObject GetTreePrefab(bool isSpecialArea)
+    private GameObject GetTreePrefab(bool isSpecialArea, PSSpawnInformation spawnInformation)
     {
         if (!isSpecialArea)
         {
-            int idx = Random.Range(0, trees.Length);
-            return trees[idx];
+            if (trees.Length > 0)
+            {
+                int idx = Random.Range(0, trees.Length);
+                return trees[idx];
+            }
         }
         else
         {
-            int idx = Random.Range(0, treesSpecialArea.Length);
-            return treesSpecialArea[idx];
+            if (spawnInformation.treesPrefabs.Length > 0)
+            {
+                int idx = Random.Range(0, spawnInformation.treesPrefabs.Length);
+                return spawnInformation.treesPrefabs[idx];
+            }
         }
+
+        return null;
+    }
+
+    private GameObject GetRandomPrefab(GameObject[] prefabs)
+    {
+        if (prefabs.Length > 0)
+        {
+            int idx = Random.Range(0, prefabs.Length);
+            return prefabs[idx];
+        }
+        else
+        {
+            return null;
+        }
+
     }
 
     private GameObject GetBushPrefab()
@@ -820,10 +868,11 @@ Layers Required:
     }
 */
 
-    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out Vector3 position)
+    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out PSSpawnInformation spawnInformation, out Vector3 position)
     {
         isSpecialArea = false;
         position = Vector3.zero;
+        spawnInformation = null;
         float height = 0;
 
         int tryCount = 0;
@@ -834,15 +883,16 @@ Layers Required:
             //  Obtain a position
             position = GetPositionInArea(centerGroup, groupRadius);
 
-            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, acceptSpecialArea, specialAreaOverlapRadius, out isSpecialArea, out height);
+            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, acceptSpecialArea, specialAreaOverlapRadius, out isSpecialArea, out spawnInformation, out height);
             position.y = height;
         }
 
         return validPosition;
     }
 
-    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out float height)
+    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out PSSpawnInformation spawnInformation, out float height)
     {
+        spawnInformation = null;
         isSpecialArea = false;
         height = 0;
 
@@ -873,7 +923,7 @@ Layers Required:
 
 
         //  Check if close to an special area
-        if (acceptSpecialArea && CheckCloseToSpecialArea(position, specialAreaOverlapRadius))
+        if (acceptSpecialArea && CheckCloseToSpecialArea(position, specialAreaOverlapRadius, out spawnInformation))
         {
             isSpecialArea = true;
         }
@@ -1064,8 +1114,10 @@ Layers Required:
         return PSHit.NO_HIT;
     }
 
-    private bool CheckCloseToSpecialArea(Vector3 position, float radius)
+    private bool CheckCloseToSpecialArea(Vector3 position, float radius, out PSSpawnInformation spawnInformation)
     {
+
+        spawnInformation = null;
 
         Ray ray = new Ray(position, Vector3.down);
 
@@ -1079,6 +1131,7 @@ Layers Required:
             {
                 if (collider.gameObject.GetComponent<PSSpecialArea>() != null)
                 {
+                    spawnInformation = collider.gameObject.GetComponent<PSSpecialArea>().spawnInformation;
                     return true;
                 }
             }
