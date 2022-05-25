@@ -25,6 +25,9 @@ public class NoiseGenerator
         float amplitude = 1f;
         float frequency = 1f;
 
+        //persistance = 0.75f;
+        //lacunarity = 2.0f;
+
         for (int i = 0; i < octaves; i++)
         {
             float sampleX = x / scale * frequency + seedX;
@@ -40,6 +43,14 @@ public class NoiseGenerator
         }
 
         // Return the noise value in 0.0f and 1.0f range
+        //return Mathf.Clamp(perlinValue, 0.0f, 1.0f);
+        float maxValue = 1;
+        for(int i = 1; i < octaves; i++)
+        {
+            maxValue += Mathf.Pow(persistance, i); 
+        }
+        //Debug.Log("Perlin Value : " + perlinValue + " / Max Value : " + maxValue);
+        perlinValue = perlinValue / maxValue;
         return Mathf.Clamp(perlinValue, 0.0f, 1.0f);
     }
 }
