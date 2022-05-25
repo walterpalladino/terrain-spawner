@@ -208,6 +208,7 @@ public class ProceduralSpawner : MonoBehaviour
         CheckRequiredLayers();
 
         Random.InitState(randomSeed);
+        NoiseGenerator.Init();
 
         treesList = new List<GameObject>();
         rocksList = new List<GameObject>();
@@ -437,44 +438,45 @@ public class ProceduralSpawner : MonoBehaviour
             bool acceptSpecialArea = true;
             bool isSpecialArea = false;
 
-            int bushesGroupsQty = (int)(bushesPresence * (xMax - xMin) * (zMax - zMin) / (2 * bushesGroupRadius) / (2 * bushesGroupRadius));
-            int bushesPlaced = 0;
+            int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * bushesGroupRadius) / (2 * bushesGroupRadius));
 
             GameObject go = new GameObject();
             go.transform.parent = bushesParent.transform;
             go.name = "" + xMin + "/" + zMin;
 
 
-            for (int n = 0; n < bushesGroupsQty; n++)
+            for (int n = 0; n < groupsQty; n++)
             {
 
-                //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
 
                 PSSpawnInformation spawnInformation;
 
                 for (int t = 0; t < bushesGroupSize; t++)
                 {
-                    Vector3 bushPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out bushPosition))
+                    Vector3 position;
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
                     {
-                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        //GameObject bushPrefab = GetBushPrefab();
-                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.bushesPrefabs : bushes);
-                        GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? bushes : spawnInformation.bushesPrefabs );
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
 
-                        if (prefab != null)
+                        if (noiseValue <= bushesPresence)
                         {
-                            GameObject instance = Instantiate(prefab, bushPosition, orientation);
-                            instance.transform.parent = go.transform;
 
-                            ChangeLayersRecursively(instance, "Vegetation");
+                            Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                            bushesPlaced++;
+                            GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? bushes : spawnInformation.bushesPrefabs );
+
+                            if (prefab != null)
+                            {
+                                GameObject instance = Instantiate(prefab, position, orientation);
+                                instance.transform.parent = go.transform;
+
+                                ChangeLayersRecursively(instance, "Vegetation");
+                            }
                         }
-                    }
 
+                    }
                 }
 
             }
@@ -491,42 +493,41 @@ public class ProceduralSpawner : MonoBehaviour
             bool acceptSpecialArea = true;
             bool isSpecialArea = false;
 
-            int rocksGroupsQty = (int)(rocksPresence * (xMax - xMin) * (zMax - zMin) / (2 * rocksGroupRadius) / (2 * rocksGroupRadius));
-            int rocksPlaced = 0;
+            int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * rocksGroupRadius) / (2 * rocksGroupRadius));
 
             GameObject go = new GameObject();
             go.transform.parent = rocksParent.transform;
             go.name = "" + xMin + "/" + zMin;
 
-            for (int n = 0; n < rocksGroupsQty; n++)
+            for (int n = 0; n < groupsQty; n++)
             {
 
-                //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
 
                 PSSpawnInformation spawnInformation;
 
                 for (int t = 0; t < rocksGroupSize; t++)
                 {
 
-                    Vector3 rockPosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out rockPosition))
+                    Vector3 position;
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
                     {
-                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
 
-                        //GameObject rockPrefab = GetRockPrefab();
-                        //GameObject prefab = GetRandomPrefab(rocks);
-                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.rocksPrefabs : rocks);
-                        GameObject prefab = GetRandomPrefab((spawnInformation == null) ? rocks: spawnInformation.rocksPrefabs );
-
-                        if (prefab != null)
+                        if (noiseValue <= rocksPresence)
                         {
-                            GameObject instance = Instantiate(prefab, rockPosition, orientation);
-                            instance.transform.parent = go.transform;
 
-                            ChangeLayersRecursively(instance, "Rocks");
+                            Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                            rocksPlaced++;
+                            GameObject prefab = GetRandomPrefab((spawnInformation == null) ? rocks : spawnInformation.rocksPrefabs);
+
+                            if (prefab != null)
+                            {
+                                GameObject instance = Instantiate(prefab, position, orientation);
+                                instance.transform.parent = go.transform;
+
+                                ChangeLayersRecursively(instance, "Rocks");
+                            }
                         }
                     }
 
@@ -545,47 +546,47 @@ public class ProceduralSpawner : MonoBehaviour
             bool acceptSpecialArea = true;
             bool isSpecialArea = false;
 
-            int treesGroupsQty = (int)(treePresence * (xMax - xMin) * (zMax - zMin) / (2 * treeGroupRadius) / (2 * treeGroupRadius));
-            int treesPlaced = 0;
+            int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * treeGroupRadius) / (2 * treeGroupRadius));
 
             GameObject go = new GameObject();
             go.transform.parent = treesParent.transform;
             go.name = "" + xMin + "/" + zMin;
 
             //  For every group
-            for (int n = 0; n < treesGroupsQty; n++)
+            for (int n = 0; n < groupsQty; n++)
             {
                 //  Get the group center position
-                //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
 
                 PSSpawnInformation spawnInformation;
-
-                //Debug.Log("New Center Group at: " + centerGroup);
 
                 //  Place the elements of the group
                 for (int t = 0; t < treeGroupSize; t++)
                 {
 
-                    Vector3 treePosition;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out spawnInformation, out treePosition))
+                    Vector3 position;
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out spawnInformation, out position))
                     {
-                        //  Randomize the orientation
-                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        //GameObject treePrefab = GetTreePrefab(isSpecialArea, spawnInformation);
-                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.treesPrefabs : trees);
-                        GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? trees : spawnInformation.treesPrefabs );
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
 
-                        if (prefab != null)
-                        {
-                            GameObject instance = Instantiate(prefab, treePosition, orientation);
-                            instance.transform.parent = go.transform;
+                        if (noiseValue <= treePresence) { 
 
-                            ChangeLayersRecursively(instance, "Trees");
+                            //  Randomize the orientation
+                            Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                            treesPlaced++;
-                            treesList.Add(instance);
+                            GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? trees : spawnInformation.treesPrefabs );
+
+                            if (prefab != null)
+                            {
+                                GameObject instance = Instantiate(prefab, position, orientation);
+                                instance.transform.parent = go.transform;
+
+                                ChangeLayersRecursively(instance, "Trees");
+
+                                treesList.Add(instance);
+                            }
+
                         }
                     }
 
@@ -605,42 +606,42 @@ public class ProceduralSpawner : MonoBehaviour
             bool acceptSpecialArea = true;
             bool isSpecialArea = false;
 
-            int grassGroupsQty = (int)(grassPresence * (xMax - xMin) * (zMax - zMin) / (2 * grassGroupRadius) / (2 * grassGroupRadius));
-            int grassPlaced = 0;
+            int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * grassGroupRadius) / (2 * grassGroupRadius));
 
             GameObject go = new GameObject();
             go.transform.parent = grassParent.transform;
             go.name = "" + xMin + "/" + zMin;
 
-            for (int n = 0; n < grassGroupsQty; n++)
+            for (int n = 0; n < groupsQty; n++)
             {
 
-                //                Vector3 centerGroup = GetRandomPosition();
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax, treePresence);
+                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
                 PSSpawnInformation spawnInformation;
 
                 for (int t = 0; t < grassGroupSize; t++)
                 {
 
-                    Vector3 grassPosition;
-                    //if (GetGrassPosition(centerGroup, grassGroupRadius, grassMaxSlope, out grassPosition))
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out grassPosition))
+                    Vector3 position;
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
                     {
-                        Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                        //GameObject grassPrefab = GetGrassPrefab();
-                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.grassPrefabs : grasses);
-                        GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? grasses : spawnInformation.grassPrefabs );
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
 
-                        if (prefab != null)
+                        if (noiseValue <= grassPresence)
                         {
-                            GameObject instance = Instantiate(prefab, grassPosition, orientation);
 
-                            instance.transform.parent = go.transform;
+                            Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
-                            ChangeLayersRecursively(instance, "Grass");
+                            GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? grasses : spawnInformation.grassPrefabs );
 
-                            grassPlaced++;
+                            if (prefab != null)
+                            {
+                                GameObject instance = Instantiate(prefab, position, orientation);
+
+                                instance.transform.parent = go.transform;
+
+                                ChangeLayersRecursively(instance, "Grass");
+                            }
                         }
                     }
 
@@ -714,11 +715,12 @@ public class ProceduralSpawner : MonoBehaviour
         return position;
     }
     */
-    private Vector3 GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ, float presence)
+
+    private Vector3 GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ)
     {
 
-        float xSize = (maxX - minX) * presence;
-        float zSize = (maxZ - minZ) * presence;
+        float xSize = (maxX - minX) ;
+        float zSize = (maxZ - minZ) ;
 
         int xGridSize = (int)xSize;
         int zGridSize = (int)zSize;
@@ -743,34 +745,7 @@ public class ProceduralSpawner : MonoBehaviour
 
         return position;
     }
-/*
-    private Vector3 GetGridRandomPosition(float presence)
-    {
 
-        float xSize = (terrainMax.x - terrainMin.x) * presence;
-        float zSize = (terrainMax.z - terrainMin.z) * presence;
-
-        int xGridSize = (int)xSize;
-        int zGridSize = (int)zSize;
-        //Debug.Log("Grid Size x:" + xGridSize + " z:" + zGridSize);
-
-        float xGridCellSize = (terrainMax.x - terrainMin.x) / xGridSize;
-        float zGridCellSize = (terrainMax.z - terrainMin.z) / zGridSize;
-
-        //  Select a grid position
-        Vector3 position = new Vector3(Random.Range(0, xGridSize), 0, Random.Range(0, zGridSize));
-
-        //  Adjust the position to the center of the grid cell
-        position.x = ((int)position.x) + 0.5f;
-        position.z = ((int)position.z) + 0.5f;
-
-        //  Scale it based on the cell dimensions
-        position.x *= xGridCellSize;
-        position.z *= zGridCellSize;
-
-        return position;
-    }
-*/
 
     private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out PSSpawnInformation spawnInformation, out Vector3 position)
     {
