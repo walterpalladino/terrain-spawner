@@ -183,6 +183,11 @@ public class ProceduralSpawner : MonoBehaviour
     [SerializeField] float maxDistanceFromCenter = 0.0f;
 
 
+    //[SerializeField]
+    PSTerrain[] terrainObjects;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -212,25 +217,61 @@ public class ProceduralSpawner : MonoBehaviour
 
         //terrainGenerator = FindObjectOfType<PSTerrainGenerator>();
 
+        CollectTerrainTiles();
+
         SetObjectsForTerrain();
         //StartCoroutine("SpawnAllObjectsInMap");
     }
 
+    private void CollectTerrainTiles()
+    {
+        //terrainTiles = FindObjectsOfType<PSTerrain>();
+
+        terrainObjects = FindObjectsOfType<PSTerrain>();
+        Debug.Log("Found : " + terrainObjects.Length + " terrain objects in the scene.");
+
+        Vector3 min = Vector3.positiveInfinity;
+        Vector3 max = Vector3.negativeInfinity;
+
+        foreach(PSTerrain terrain in terrainObjects)
+        {
+            Vector3 terrainMin = terrain.gameObject.GetComponent<MeshRenderer>().bounds.min;
+            //terrainMin.Scale(terrain.transform.localScale);
+            Vector3 terrainMax = terrain.gameObject.GetComponent<MeshRenderer>().bounds.max;
+            //terrainMax.Scale(terrain.transform.localScale);
+
+            min = Vector3.Min(min, terrainMin);
+            max = Vector3.Max(max, terrainMax);
+        }
+
+        Debug.Log(" from " + min + " to " + max);
+
+        this.terrainMin = min;
+        this.terrainMax = max;
+
+        /*
+        terrainMin = new Vector3(0, 0, 0);
+        terrainMax = new Vector3(terrainWidth * terrainTileSize, 0, terrainDepth * terrainTileSize);
+
+        Debug.Log(" from " + terrainMin + " to " + terrainMax);
+        */
+    }
 
 
-/*
 
-Layers Required:
+    /*
 
-16 - Terrain
-17 - Trees
-18 - Vegetation
-19 - Rocks
-20 - Buildings
-21 - Grass
-//22 - Special Area
- 
-*/
+    Layers Required:
+
+    16 - Terrain
+    17 - Trees
+    18 - Vegetation
+    19 - Rocks
+    20 - Buildings
+    21 - Grass
+    //22 - Special Area
+
+    */
     private void CheckRequiredLayers()
     {
         LayerUtils.CreateLayer("Terrain", 16);
@@ -343,7 +384,6 @@ Layers Required:
             }
         }
 
-//        PlaceObjects(0, 0, terrainTileSize);
     }
 
     public void PlaceObjects(int x, int z, float terrainTileSize)
@@ -421,7 +461,8 @@ Layers Required:
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
                         //GameObject bushPrefab = GetBushPrefab();
-                        GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.bushesPrefabs : bushes);
+                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.bushesPrefabs : bushes);
+                        GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? bushes : spawnInformation.bushesPrefabs );
 
                         if (prefab != null)
                         {
@@ -475,7 +516,8 @@ Layers Required:
 
                         //GameObject rockPrefab = GetRockPrefab();
                         //GameObject prefab = GetRandomPrefab(rocks);
-                        GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.rocksPrefabs : rocks);
+                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.rocksPrefabs : rocks);
+                        GameObject prefab = GetRandomPrefab((spawnInformation == null) ? rocks: spawnInformation.rocksPrefabs );
 
                         if (prefab != null)
                         {
@@ -532,7 +574,8 @@ Layers Required:
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
                         //GameObject treePrefab = GetTreePrefab(isSpecialArea, spawnInformation);
-                        GameObject prefab = GetRandomPrefab((isSpecialArea)?spawnInformation.treesPrefabs:trees);
+                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.treesPrefabs : trees);
+                        GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? trees : spawnInformation.treesPrefabs );
 
                         if (prefab != null)
                         {
@@ -586,7 +629,8 @@ Layers Required:
                         Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
                         //GameObject grassPrefab = GetGrassPrefab();
-                        GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.grassPrefabs : grasses);
+                        //GameObject prefab = GetRandomPrefab((isSpecialArea) ? spawnInformation.grassPrefabs : grasses);
+                        GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? grasses : spawnInformation.grassPrefabs );
 
                         if (prefab != null)
                         {
@@ -608,74 +652,6 @@ Layers Required:
 
     }
 
-    private GameObject GetGrassPrefab()
-    {
-        int idx = Random.Range(0, grasses.Length);
-        return grasses[idx];
-    }
-    /*
-    private bool GetGrassPosition(Vector3 centerGroup, float groupRadius, float maxSlope, out Vector3 position)
-    {
-
-        //  Obtain a position
-        position = new Vector3(Random.Range(terrainMin.x - groupRadius, terrainMax.x + groupRadius), 0, Random.Range(terrainMin.z - groupRadius, terrainMax.z + groupRadius));
-
-        //  Check values are in terrain boundaries
-        if ((position.x < terrainMin.x) || (position.x > terrainMax.x) || (position.z < terrainMin.z) || (position.z > terrainMax.z))
-        {
-            return false;
-        }
-
-        float height;
-        Vector3 normal;
-        if (!GetTerrainHeight(position, out height, out normal))
-        {
-            return false;
-        }
-        position.y = height;
-
-        //  Check Min and Max Altitude
-        if (height < grassMinAltitude || height > grassMaxAltitude)
-        {
-            return false;
-        }
-
-        if (CheckPlaceholderAt(position))
-        {
-            return false;
-        }
-
-        //  Check max slope
-        if (Vector3.Angle(Vector3.up, normal) > maxSlope)
-        {
-            return false;
-        }
-
-        //  Return the position
-        return true;
-    }
-    */
-    private GameObject GetTreePrefab(bool isSpecialArea, PSSpawnInformation spawnInformation)
-    {
-        if (!isSpecialArea)
-        {
-            if (trees.Length > 0)
-            {
-                int idx = Random.Range(0, trees.Length);
-                return trees[idx];
-            }
-        }
-        else
-        {
-            if (spawnInformation.treesPrefabs.Length > 0)
-            {
-                int idx = Random.Range(0, spawnInformation.treesPrefabs.Length);
-                return spawnInformation.treesPrefabs[idx];
-            }
-        }
-
-        return null;
-    }
 
     private GameObject GetRandomPrefab(GameObject[] prefabs)
     {
@@ -689,32 +665,6 @@ Layers Required:
             return null;
         }
 
-    }
-
-    private GameObject GetBushPrefab()
-    {
-        int idx = Random.Range(0, bushes.Length);
-        return bushes[idx];
-    }
-
-    private GameObject GetRockPrefab()
-    {
-        int idx = Random.Range(0, rocks.Length);
-        return rocks[idx];
-    }
-
-
-    private bool OverlapTree(Vector3 position)
-    {
-        foreach (Transform child in treesParent.transform)
-        {
-            if (Vector3.Distance(position, child.transform.position) <= treeFreeRadius)
-            {
-                return true;
-            }
-        }
-        //Debug.Log("Overlapping");
-        return false;
     }
 
     private bool CheckOverlap(Vector3 position, float freeRadius)
@@ -754,54 +704,8 @@ Layers Required:
 
         return false;
     }
-    /*
-    private void CleanGrassInArea(Vector3 position, float distance)
-    {
-        foreach (Transform child in grassParent.transform)
-        {
-            if (Vector3.Distance(position, child.transform.position) <= distance)
-            {
-                if (Application.isPlaying)
-                {
-                    GameObject.Destroy(child.gameObject);
-                }
-                else
-                {
-                    DestroyImmediate(child.gameObject);
-                }
-            }
-        }
-    }
-    */
-    /*
-    private bool GetTerrainHeight(Vector3 position, out float height, out Vector3 normal)
-    {
 
-        height = -1;
-        normal = Vector3.zero;
 
-        position.y = 10000f;
-
-        Ray ray = new Ray(position, Vector3.down);
-
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~terrainIgnoreLayers))
-        //            if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.NameToLayer("Terrain")))
-        {
-            if (hit.collider.gameObject.GetComponent<PSTerrain>() != null)
-            {
-                //Debug.Log(hit.collider.gameObject.name);
-                height = hit.point.y;
-                normal = hit.normal;
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-    */
     /*
     private Vector3 GetRandomPosition()
     {
@@ -911,8 +815,9 @@ Layers Required:
         }
 
         Vector3 normal;
+        GameObject hitGameObject;
 
-        PSHit psHit = CheckAt(position, out height, out normal);
+        PSHit psHit = CheckAt(position, out height, out normal, out hitGameObject);
 
         //        if (!GetTerrainHeight(position, out height, out normal))
         if (psHit != PSHit.TERRAIN_HIT)
@@ -926,6 +831,14 @@ Layers Required:
         if (acceptSpecialArea && CheckCloseToSpecialArea(position, specialAreaOverlapRadius, out spawnInformation))
         {
             isSpecialArea = true;
+        }
+        else
+        {
+            //  Terrain
+            if ((hitGameObject.GetComponent<PSTerrain>() != null) && (hitGameObject.GetComponent<PSTerrain>().enabled))
+            {
+                spawnInformation = hitGameObject.GetComponent<PSTerrain>().spawnInformation;
+            }
         }
 
 
@@ -949,7 +862,6 @@ Layers Required:
             return false;
         }
 
-        //if (OverlapTree(position))
         if (CheckOverlap(position, treeFreeRadius))
         {
             return false;
@@ -981,88 +893,11 @@ Layers Required:
         return position;
     }
 
-    //private bool GetItemPosition(Vector3 centerGroup, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, bool clearGrass, out Vector3 position)
-    //{
 
-    //    //  Obtain a position
-    //    position = new Vector3(Random.Range(terrainXMin - groupRadius, terrainXMax + groupRadius), 0, Random.Range(terrainZMin - groupRadius, terrainZMax + groupRadius));
 
-    //    //  Check values are in terrain boundaries
-    //    if ((position.x < terrainXMin) || (position.x > terrainXMax) || (position.z < terrainZMin) || (position.z > terrainZMax))
-    //    {
-    //        return false;
-    //    }
-
-    //    float height;
-    //    Vector3 normal;
-
-    //    PSHit psHit = CheckAt(position, out height, out normal);
-
-    //    //        if (!GetTerrainHeight(position, out height, out normal))
-    //    if (psHit != PSHit.TERRAIN_HIT)
-    //    {
-    //        return false;
-    //    }
-    //    position.y = height;
-
-    //    //  Check Min and Max Altitude
-    //    if (height < minAltitude || height > maxAltitude)
-    //    {
-    //        return false;
-    //    }
-    //    /*
-    //            if (CheckPlaceholderAt(position))
-    //            {
-    //                return false;
-    //            }
-    //    */
-    //    //  Check max slope
-    //    if (Vector3.Angle(Vector3.up, normal) > maxSlope)
-    //    {
-    //        return false;
-    //    }
-
-    //    if (OverlapTree(position))
-    //    {
-    //        return false;
-    //    }
-
-    //    if (clearGrass)
-    //    {
-    //        //  If overlaps any grass remove the grass
-    //        CleanGrassInArea(position, freeRadius);
-    //    }
-
-    //    //  Return the position
-    //    return true;
-    //}
-
-    /*
-    private bool CheckPlaceholderAt(Vector3 position)
+    private PSHit CheckAt(Vector3 position, out float height, out Vector3 normal, out GameObject hitGameObject)
     {
-
-        position.y = 10000f;
-
-        Ray ray = new Ray(position, Vector3.down);
-
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
-        //            if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.NameToLayer("Terrain")))
-        {
-            if (hit.collider.gameObject.GetComponent<PSPlaceholder>() != null)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    */
-
-    private PSHit CheckAt(Vector3 position, out float height, out Vector3 normal)
-    {
-
+        hitGameObject = null;
         height = -1;
         normal = Vector3.zero;
 
@@ -1076,6 +911,7 @@ Layers Required:
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~terrainIgnoreLayers))
 
         {
+            hitGameObject = hit.collider.gameObject;
             //Debug.Log("Hit object : " + hit.collider.gameObject.name + " with layer : " + LayerMask.LayerToName(hit.collider.gameObject.layer));
 
             if (hit.collider.gameObject.GetComponent<PSPlaceholder>() != null)
@@ -1232,6 +1068,7 @@ Layers Required:
             grassDictionary.Add(child.gameObject.name, child.gameObject);
         }
     }
+
     /*
     public void HideObjects(int x, int z)
     {
