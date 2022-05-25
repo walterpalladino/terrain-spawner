@@ -182,6 +182,8 @@ public class ProceduralSpawner : MonoBehaviour
 
     [SerializeField] float maxDistanceFromCenter = 0.0f;
 
+    [Range(0.0001f, 1000.0f)]
+    [SerializeField] float noiseScale = 1.0f;
 
     //[SerializeField]
     PSTerrain[] terrainObjects;
@@ -458,7 +460,7 @@ public class ProceduralSpawner : MonoBehaviour
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
                     {
 
-                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, 1, 1, 1);
 
                         if (noiseValue <= bushesPresence)
                         {
@@ -512,7 +514,7 @@ public class ProceduralSpawner : MonoBehaviour
                     Vector3 position;
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
                     {
-                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, 1, 1, 1);
 
                         if (noiseValue <= rocksPresence)
                         {
@@ -568,7 +570,7 @@ public class ProceduralSpawner : MonoBehaviour
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out spawnInformation, out position))
                     {
 
-                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, 1, 1, 1);
 
                         if (noiseValue <= treePresence) { 
 
@@ -625,7 +627,7 @@ public class ProceduralSpawner : MonoBehaviour
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
                     {
 
-                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, 1, 1, 1, 1);
+                        float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, 1, 1, 1);
 
                         if (noiseValue <= grassPresence)
                         {
