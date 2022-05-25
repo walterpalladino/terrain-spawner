@@ -5,6 +5,7 @@ using UnityEngine;
 public class PSTerrain : MonoBehaviour
 {
 
+    public bool useSpawnInformation = true;
     public PSSpawnInformation spawnInformation;
 
     // Start is called before the first frame update

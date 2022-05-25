@@ -835,7 +835,7 @@ public class ProceduralSpawner : MonoBehaviour
         else
         {
             //  Terrain
-            if ((hitGameObject.GetComponent<PSTerrain>() != null) && (hitGameObject.GetComponent<PSTerrain>().enabled))
+            if ((hitGameObject.GetComponent<PSTerrain>() != null) && (hitGameObject.GetComponent<PSTerrain>().useSpawnInformation))
             {
                 spawnInformation = hitGameObject.GetComponent<PSTerrain>().spawnInformation;
             }
