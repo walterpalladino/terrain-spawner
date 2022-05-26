@@ -49,13 +49,6 @@ public class ProceduralSpawner : MonoBehaviour
     [SerializeField]
     private float treeMaxAltitude = 20.0f;
 
-//    [SerializeField]
-//    private LayerMask treeSpecialAreaMask ;
-    [SerializeField]
-    private float treeSpecialAreaRadius = 10.0f;
-//    [SerializeField]
-//    private GameObject[] treesSpecialArea;
-
 
     [Header("Grass Settings")]
     [SerializeField]
@@ -166,8 +159,6 @@ public class ProceduralSpawner : MonoBehaviour
 
 
     [Header("Terrain Settings")]
-    //    [SerializeField] Vector3 minSpawn;
-    //    [SerializeField] Vector3 maxSpawn;
     [SerializeField] float terrainTileSize;
 
     [SerializeField] Vector3 terrainMin;
@@ -234,7 +225,6 @@ public class ProceduralSpawner : MonoBehaviour
 
     private void CollectTerrainTiles()
     {
-        //terrainTiles = FindObjectsOfType<PSTerrain>();
 
         terrainObjects = FindObjectsOfType<PSTerrain>();
         Debug.Log("Found : " + terrainObjects.Length + " terrain objects in the scene.");
@@ -245,25 +235,16 @@ public class ProceduralSpawner : MonoBehaviour
         foreach(PSTerrain terrain in terrainObjects)
         {
             Vector3 terrainMin = terrain.gameObject.GetComponent<MeshRenderer>().bounds.min;
-            //terrainMin.Scale(terrain.transform.localScale);
             Vector3 terrainMax = terrain.gameObject.GetComponent<MeshRenderer>().bounds.max;
-            //terrainMax.Scale(terrain.transform.localScale);
 
             min = Vector3.Min(min, terrainMin);
             max = Vector3.Max(max, terrainMax);
         }
 
-        Debug.Log(" from " + min + " to " + max);
-
         this.terrainMin = min;
         this.terrainMax = max;
 
-        /*
-        terrainMin = new Vector3(0, 0, 0);
-        terrainMax = new Vector3(terrainWidth * terrainTileSize, 0, terrainDepth * terrainTileSize);
-
         Debug.Log(" from " + terrainMin + " to " + terrainMax);
-        */
     }
 
 
@@ -292,85 +273,6 @@ public class ProceduralSpawner : MonoBehaviour
         //LayerUtils.CreateLayer("Special Area", 22);
     }
 
-
-    /*
-    IEnumerator SpawnAllObjectsInMap()
-    {
-        for (int z = 0; z < terrainGenerator.terrainDepth; z++)
-        {
-            for (int x = 0; x < terrainGenerator.terrainWidth; x++)
-            {
-                float xMin = x * terrainGenerator.terrainTileSize;
-                float zMin = z * terrainGenerator.terrainTileSize;
-                float xMax = (x + 1) * terrainGenerator.terrainTileSize;
-                float zMax = (z + 1) * terrainGenerator.terrainTileSize;
-
-                Debug.Log("Placing objects on area : " + xMin + "/" + zMin + " to " + xMax + "/" + zMax);
-
-                //PlaceGrass(xMin, zMin, xMax, zMax);
-                yield return null;
-                PlaceTrees(xMin, zMin, xMax, zMax);
-                yield return null;
-                PlaceRocks(xMin, zMin, xMax, zMax);
-                yield return null;
-                PlaceBushes(xMin, zMin, xMax, zMax);
-                yield return null;
-
-            }
-        }
-    }
-    */
-
-    /*
-    private void SetObjectsForTerrain()
-    {
-
-        for (int z = 0; z < terrainGenerator.terrainDepth; z++)
-        {
-            for (int x = 0; x < terrainGenerator.terrainWidth; x++)
-            {
-                PlaceObjects(x, z);
-            }
-        }
-
-    }
-
-
-    public void PlaceObjects(int x, int z)
-    {
-        float xMin = x * terrainGenerator.terrainTileSize;
-        float zMin = z * terrainGenerator.terrainTileSize;
-        float xMax = (x + 1) * terrainGenerator.terrainTileSize;
-        float zMax = (z + 1) * terrainGenerator.terrainTileSize;
-
-        Debug.Log("Placing objects on area : " + xMin + "/" + zMin + " to " + xMax + "/" + zMax);
-
-
-        PlaceGrass(xMin, zMin, xMax, zMax);
-        PlaceTrees(xMin, zMin, xMax, zMax);
-        PlaceRocks(xMin, zMin, xMax, zMax);
-        PlaceBushes(xMin, zMin, xMax, zMax);
-    }
-    */
-    /*
-        private void SetObjectsForTerrain()
-        {
-            PlaceObjects(minSpawn.x, maxSpawn.x, minSpawn.z, maxSpawn.z);    
-        }
-    */
-
-    /*
-        public void PlaceObjects(float xMin, float xMax, float zMin, float zMax)
-        {
-
-            Debug.Log("Placing objects on area : " + xMin + "/" + zMin + " to " + xMax + "/" + zMax);
-
-            PlaceGrass(xMin, zMin, xMax, zMax);
-            PlaceTrees(xMin, zMin, xMax, zMax);
-            PlaceRocks(xMin, zMin, xMax, zMax);
-            PlaceBushes(xMin, zMin, xMax, zMax);
-        }
-    */
 
     private void SetObjectsForTerrain()
     {
@@ -413,23 +315,6 @@ public class ProceduralSpawner : MonoBehaviour
     }
 
 
-
-    /*
-    private void SetObjectsForTerrain()
-    {
-
-        float xMin = terrainXMin;
-        float zMin = terrainZMin;
-        float xMax = terrainXMax;
-        float zMax = terrainZMax;
-
-        PlaceGrass(xMin, zMin, xMax, zMax);
-        PlaceTrees(xMin, zMin, xMax, zMax);
-        PlaceRocks(xMin, zMin, xMax, zMax);
-        PlaceBushes(xMin, zMin, xMax, zMax);
-
-    }
-    */
     public static void ChangeLayersRecursively(GameObject go, string name)
     {
         go.layer = LayerMask.NameToLayer(name);
@@ -734,42 +619,44 @@ public class ProceduralSpawner : MonoBehaviour
         return position;
     }
     */
+    /*
+        private Vector3 GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ)
+        {
 
-    private Vector3 GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ)
-    {
+            float xSize = (maxX - minX) ;
+            float zSize = (maxZ - minZ) ;
 
-        float xSize = (maxX - minX) ;
-        float zSize = (maxZ - minZ) ;
+            int xGridSize = (int)xSize;
+            int zGridSize = (int)zSize;
+            //Debug.Log("Grid Size x:" + xGridSize + " z:" + zGridSize);
 
-        int xGridSize = (int)xSize;
-        int zGridSize = (int)zSize;
-        //Debug.Log("Grid Size x:" + xGridSize + " z:" + zGridSize);
+            float xGridCellSize = (maxX - minX) / xGridSize;
+            float zGridCellSize = (maxZ - minZ) / zGridSize;
 
-        float xGridCellSize = (maxX - minX) / xGridSize;
-        float zGridCellSize = (maxZ - minZ) / zGridSize;
+            //  Select a grid position
+            Vector3 position = new Vector3(Random.Range(0, xGridSize), 0, Random.Range(0, zGridSize));
 
-        //  Select a grid position
-        Vector3 position = new Vector3(Random.Range(0, xGridSize), 0, Random.Range(0, zGridSize));
+            //  Adjust the position to the center of the grid cell
+            position.x = ((int)position.x) + 0.5f;
+            position.z = ((int)position.z) + 0.5f;
 
-        //  Adjust the position to the center of the grid cell
-        position.x = ((int)position.x) + 0.5f;
-        position.z = ((int)position.z) + 0.5f;
+            //  Scale it based on the cell dimensions
+            position.x *= xGridCellSize;
+            position.z *= zGridCellSize;
 
-        //  Scale it based on the cell dimensions
-        position.x *= xGridCellSize;
-        position.z *= zGridCellSize;
+            position.x += minX;
+            position.z += minZ;
 
-        position.x += minX;
-        position.z += minZ;
+            return position;
+        }
+        */
 
-        return position;
-    }
-    
+
     private bool GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ, out Vector3 position, out PSSpawnInformation spawnInformation)
     {
         spawnInformation = null;
 
-        position = GetGridRandomPosition(minX, minZ, maxX, maxZ);
+        position = new Vector3(Random.Range(minX, maxX), 0, Random.Range(minZ, maxZ));
 
         Vector3 normal;
         GameObject hitGameObject;
@@ -910,7 +797,6 @@ public class ProceduralSpawner : MonoBehaviour
 
         RaycastHit hit;
 
-//        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~terrainIgnoreLayers))
 
         {
@@ -953,31 +839,6 @@ public class ProceduralSpawner : MonoBehaviour
         return PSHit.NO_HIT;
     }
 
-    private bool CheckCloseToSpecialArea(Vector3 position, float radius, out PSSpawnInformation spawnInformation)
-    {
-
-        spawnInformation = null;
-
-        Ray ray = new Ray(position, Vector3.down);
-
-        Collider [] hits = Physics.OverlapSphere(position, radius);
-
-        if (hits.Length > 0)
-        {
-            //Debug.Log("Hit object : " + hit.collider.gameObject.name + " with layer : " + LayerMask.LayerToName(hit.collider.gameObject.layer));
-
-            foreach (Collider collider in hits)
-            {
-                if (collider.gameObject.GetComponent<PSSpecialArea>() != null)
-                {
-                    spawnInformation = collider.gameObject.GetComponent<PSSpecialArea>().spawnInformation;
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
     public GameObject[] GetPois()
     {
