@@ -443,8 +443,6 @@ public class ProceduralSpawner : MonoBehaviour
     {
         if (bushesEnabled)
         {
-            bool acceptSpecialArea = true;
-            bool isSpecialArea = false;
 
             int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * bushesGroupRadius) / (2 * bushesGroupRadius));
 
@@ -456,14 +454,19 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < groupsQty; n++)
             {
 
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
-
                 PSSpawnInformation spawnInformation;
+
+                //  Get the group center position
+                Vector3 centerGroup;
+                if (!GetGridRandomPosition(xMin, zMin, xMax, zMax, out centerGroup, out spawnInformation))
+                {
+                    continue;
+                }
 
                 for (int t = 0; t < bushesGroupSize; t++)
                 {
                     Vector3 position;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, out position))
                     {
 
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
@@ -498,9 +501,6 @@ public class ProceduralSpawner : MonoBehaviour
         if (rocksEnabled)
         {
 
-            bool acceptSpecialArea = true;
-            bool isSpecialArea = false;
-
             int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * rocksGroupRadius) / (2 * rocksGroupRadius));
 
             GameObject go = new GameObject();
@@ -510,15 +510,20 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < groupsQty; n++)
             {
 
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
-
                 PSSpawnInformation spawnInformation;
+
+                //  Get the group center position
+                Vector3 centerGroup;
+                if (!GetGridRandomPosition(xMin, zMin, xMax, zMax, out centerGroup, out spawnInformation))
+                {
+                    continue;
+                }
 
                 for (int t = 0; t < rocksGroupSize; t++)
                 {
 
                     Vector3 position;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, out position))
                     {
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
 
@@ -551,8 +556,6 @@ public class ProceduralSpawner : MonoBehaviour
     {
         if (treesEnabled)
         {
-            bool acceptSpecialArea = true;
-            bool isSpecialArea = false;
 
             int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * treeGroupRadius) / (2 * treeGroupRadius));
 
@@ -563,17 +566,22 @@ public class ProceduralSpawner : MonoBehaviour
             //  For every group
             for (int n = 0; n < groupsQty; n++)
             {
-                //  Get the group center position
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
 
                 PSSpawnInformation spawnInformation;
+
+                //  Get the group center position
+                Vector3 centerGroup ;
+                if (!GetGridRandomPosition(xMin, zMin, xMax, zMax, out centerGroup, out spawnInformation))
+                {
+                    continue;
+                }
 
                 //  Place the elements of the group
                 for (int t = 0; t < treeGroupSize; t++)
                 {
 
                     Vector3 position;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, treeSpecialAreaRadius, out isSpecialArea, out spawnInformation, out position))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, out position))
                     {
 
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
@@ -611,9 +619,6 @@ public class ProceduralSpawner : MonoBehaviour
         if (grassEnabled)
         {
 
-            bool acceptSpecialArea = true;
-            bool isSpecialArea = false;
-
             int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * grassGroupRadius) / (2 * grassGroupRadius));
 
             GameObject go = new GameObject();
@@ -623,14 +628,20 @@ public class ProceduralSpawner : MonoBehaviour
             for (int n = 0; n < groupsQty; n++)
             {
 
-                Vector3 centerGroup = GetGridRandomPosition(xMin, zMin, xMax, zMax);
                 PSSpawnInformation spawnInformation;
+
+                //  Get the group center position
+                Vector3 centerGroup;
+                if (!GetGridRandomPosition(xMin, zMin, xMax, zMax, out centerGroup, out spawnInformation))
+                {
+                    continue;
+                }
 
                 for (int t = 0; t < grassGroupSize; t++)
                 {
 
                     Vector3 position;
-                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, acceptSpecialArea, 0, out isSpecialArea, out spawnInformation, out position))
+                    if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, out position))
                     {
 
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
@@ -753,13 +764,40 @@ public class ProceduralSpawner : MonoBehaviour
 
         return position;
     }
-
-
-    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out PSSpawnInformation spawnInformation, out Vector3 position)
+    
+    private bool GetGridRandomPosition(float minX, float minZ, float maxX, float maxZ, out Vector3 position, out PSSpawnInformation spawnInformation)
     {
-        isSpecialArea = false;
-        position = Vector3.zero;
         spawnInformation = null;
+
+        position = GetGridRandomPosition(minX, minZ, maxX, maxZ);
+
+        Vector3 normal;
+        GameObject hitGameObject;
+
+        float height;
+        PSHit psHit = CheckAt(position, out height, out normal, out hitGameObject);
+
+        //        if (!GetTerrainHeight(position, out height, out normal))
+        if (psHit != PSHit.TERRAIN_HIT)
+        {
+            return false;
+        }
+        position.y = height;
+
+
+        //  Terrain
+        if ((hitGameObject.GetComponent<PSTerrain>() != null) && (hitGameObject.GetComponent<PSTerrain>().useSpawnInformation))
+        {
+            spawnInformation = hitGameObject.GetComponent<PSTerrain>().spawnInformation;
+        }
+
+        return true;
+    }
+    
+    private bool GetItemPosition(Vector3 centerGroup, float xMin, float zMin, float xMax, float zMax, float groupRadius, float maxSlope, float minAltitude, float maxAltitude, float freeRadius, int maxTries, out Vector3 position)
+    {
+        position = Vector3.zero;
+
         float height = 0;
 
         int tryCount = 0;
@@ -770,17 +808,15 @@ public class ProceduralSpawner : MonoBehaviour
             //  Obtain a position
             position = GetPositionInArea(centerGroup, groupRadius);
 
-            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, acceptSpecialArea, specialAreaOverlapRadius, out isSpecialArea, out spawnInformation, out height);
+            validPosition = CheckValidPosition(position, maxSlope, minAltitude, maxAltitude, out height);
             position.y = height;
         }
 
         return validPosition;
     }
 
-    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, bool acceptSpecialArea, float specialAreaOverlapRadius, out bool isSpecialArea, out PSSpawnInformation spawnInformation, out float height)
+    private bool CheckValidPosition(Vector3 position, float maxSlope, float minAltitude, float maxAltitude, out float height)
     {
-        spawnInformation = null;
-        isSpecialArea = false;
         height = 0;
 
         //  Check values are in terrain boundaries
@@ -808,22 +844,6 @@ public class ProceduralSpawner : MonoBehaviour
             return false;
         }
         position.y = height;
-
-
-        //  Check if close to an special area
-        if (acceptSpecialArea && CheckCloseToSpecialArea(position, specialAreaOverlapRadius, out spawnInformation))
-        {
-            isSpecialArea = true;
-        }
-        else
-        {
-            //  Terrain
-            if ((hitGameObject.GetComponent<PSTerrain>() != null) && (hitGameObject.GetComponent<PSTerrain>().useSpawnInformation))
-            {
-                spawnInformation = hitGameObject.GetComponent<PSTerrain>().spawnInformation;
-            }
-        }
-
 
 
         //  Check Min and Max Altitude
