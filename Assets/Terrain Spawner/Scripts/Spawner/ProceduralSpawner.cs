@@ -354,9 +354,12 @@ public class ProceduralSpawner : MonoBehaviour
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, bushesGroupRadius, bushesMaxSlope, bushesMinAltitude, bushesMaxAltitude, bushesFreeRadius, maxTriesToLocateObjects, out position))
                     {
 
+                        //  Value based on the terrain mask
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
-
-                        if (noiseValue <= bushesPresence)
+                        //  Random value to compare
+                        float randomValue = Random.Range(0.0f, 1.0f);
+                        //  The lower the chances on the terrain and the presence the lower the chance to display an element
+                        if (randomValue <= noiseValue * bushesPresence)
                         {
 
                             Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
@@ -410,9 +413,12 @@ public class ProceduralSpawner : MonoBehaviour
                     Vector3 position;
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, rocksGroupRadius, rocksMaxSlope, rocksMinAltitude, rocksMaxAltitude, rocksFreeRadius, maxTriesToLocateObjects, out position))
                     {
+                        //  Value based on the terrain mask
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
-
-                        if (noiseValue <= rocksPresence)
+                        //  Random value to compare
+                        float randomValue = Random.Range(0.0f, 1.0f);
+                        //  The lower the chances on the terrain and the presence the lower the chance to display an element
+                        if (randomValue <= noiseValue * rocksPresence)
                         {
 
                             Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
@@ -469,9 +475,12 @@ public class ProceduralSpawner : MonoBehaviour
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, treeGroupRadius, treeMaxSlope, treeMinAltitude, treeMaxAltitude, treeFreeRadius, maxTriesToLocateObjects, out position))
                     {
 
+                        //  Value based on the terrain mask
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
-
-                        if (noiseValue <= treePresence) { 
+                        //  Random value to compare
+                        float randomValue = Random.Range(0.0f, 1.0f);
+                        //  The lower the chances on the terrain and the presence the lower the chance to display an element
+                        if (randomValue <= noiseValue * treePresence) { 
 
                             //  Randomize the orientation
                             Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
@@ -529,9 +538,12 @@ public class ProceduralSpawner : MonoBehaviour
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, out position))
                     {
 
+                        //  Value based on the terrain mask
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
-
-                        if (noiseValue <= grassPresence)
+                        //  Random value to compare
+                        float randomValue = Random.Range(0.0f, 1.0f);
+                        //  The lower the chances on the terrain and the presence the lower the chance to display an element
+                        if (randomValue <= noiseValue * grassPresence)
                         {
 
                             Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
