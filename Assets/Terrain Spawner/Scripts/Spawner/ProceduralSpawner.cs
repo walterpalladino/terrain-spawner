@@ -61,13 +61,13 @@ public class ProceduralSpawner : MonoBehaviour
     [Range(0.0f, 1.0f)]
     private float grassPresence = 0.5f;
     [SerializeField]
-    [Range(1, 10)]
+    [Range(1, 20)]
     private int grassGroupSize = 1;
     [SerializeField]
     [Range(1.0f, 15.0f)]
     private float grassGroupRadius = 1.0f;
     [SerializeField]
-    [Range(0.5f, 5.0f)]
+    [Range(0.1f, 5.0f)]
     private float grassFreeRadius = 0.5f;
     [SerializeField]
     [Range(0.0f, 90.0f)]
@@ -514,10 +514,16 @@ public class ProceduralSpawner : MonoBehaviour
         {
 
             int groupsQty = (int)((xMax - xMin) * (zMax - zMin) / (2 * grassGroupRadius) / (2 * grassGroupRadius));
+            groupsQty *= 8; //  Magic Number
+            //Debug.Log("Grass groups to place: " + groupsQty);
 
             GameObject go = new GameObject();
             go.transform.parent = grassParent.transform;
             go.name = "" + xMin + "/" + zMin;
+
+
+            int ignoredQty = 0;
+            int cantPlaceQty = 0;
 
             for (int n = 0; n < groupsQty; n++)
             {
@@ -537,7 +543,7 @@ public class ProceduralSpawner : MonoBehaviour
                     Vector3 position;
                     if (GetItemPosition(centerGroup, xMin, zMin, xMax, zMax, grassGroupRadius, grassMaxSlope, grassMinAltitude, grassMaxAltitude, grassFreeRadius, maxTriesToLocateObjects, out position))
                     {
-
+                        
                         //  Value based on the terrain mask
                         float noiseValue = NoiseGenerator.GetNoiseAt(position.x, position.z, noiseScale, noiseOcatves, noisePersistance, noiseLacunarity);
                         //  Random value to compare
@@ -545,7 +551,7 @@ public class ProceduralSpawner : MonoBehaviour
                         //  The lower the chances on the terrain and the presence the lower the chance to display an element
                         if (randomValue <= noiseValue * grassPresence)
                         {
-
+                        
                             Quaternion orientation = Quaternion.AngleAxis(Random.Range(0, 359), Vector3.up);
 
                             GameObject prefab = GetRandomPrefab( (spawnInformation == null) ? grasses : spawnInformation.grassPrefabs );
@@ -558,12 +564,23 @@ public class ProceduralSpawner : MonoBehaviour
 
                                 ChangeLayersRecursively(instance, "Grass");
                             }
+                            
                         }
+                        else
+                        {
+                            ignoredQty++;
+                        }
+                            
+                    }
+                    else
+                    {
+                        cantPlaceQty++;
                     }
 
                 }
 
             }
+            //Debug.Log("Ignored: " + ignoredQty + " / Cant Place: " + cantPlaceQty);
             //Debug.Log("Placed " + grassPlaced + " grass of " + grassGroupsQty + " groups of " + grassGroupSize + " grass.");
         }
 
@@ -740,6 +757,7 @@ public class ProceduralSpawner : MonoBehaviour
         //        if (!GetTerrainHeight(position, out height, out normal))
         if (psHit != PSHit.TERRAIN_HIT)
         {
+            //Debug.Log("Not Terrain Hit " + hitGameObject.name);
             return false;
         }
         position.y = height;
@@ -790,7 +808,8 @@ public class ProceduralSpawner : MonoBehaviour
 
         float angle = Random.Range(0, 2 * Mathf.PI);
         float distance = Random.Range(0, groupRadius);
-        position = centerGroup + groupRadius * new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+        //position = centerGroup + groupRadius * new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+        position = centerGroup + distance * new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
 
         return position;
     }
